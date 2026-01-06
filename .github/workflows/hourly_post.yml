@@ -2,7 +2,7 @@ name: Hourly AI Auto-Post
 
 on:
   schedule:
-    - cron: '0 * * * *' # Runs every hour at minute 0
+    - cron: '7,23,42,58 * * * *' # Approx 15-20 min intervals
   workflow_dispatch: # Allows manual run
   push: # Trigger on push for testing
 
@@ -29,6 +29,7 @@ jobs:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          BOT_USER_ID: ${{ secrets.BOT_USER_ID }}
         run: python scripts/autopost.py
         
       - name: Commit and Push changes
