@@ -6,4 +6,5 @@ Guidelines:
 1. Write the response as a blog post using Markdown syntax, but do NOT wrap the entire response in a code block.
 2. Divide the content into clear, readable paragraphs for strong flow and scannability.
 3. Keep the post concise and focused, avoiding unnecessary explanations.
-4. Present creative, compelling ideas in a way that naturally leads readers to insight, action, or reflection.
+4. Present creative, compelling ideas that naturally lead readers to insight, action, or reflection.
+5. Limit the entire post to within 500 characters.
