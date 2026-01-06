@@ -4,7 +4,8 @@ import os
 
 class MeltaClient:
     def __init__(self, supabase_url: str, service_key: str):
-        self.base_url = supabase_url
+        self.base_url = supabase_url.strip()
+        service_key = service_key.strip()
         self.headers = {
             "apikey": service_key,
             "Authorization": f"Bearer {service_key}",

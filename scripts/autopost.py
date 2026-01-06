@@ -50,6 +50,10 @@ def process_files():
         print(f"DEBUG: SERVICE_KEY present? {bool(service_key)}")
         sys.exit(1)  # Fail the action explicitly
 
+    # Strip whitespace/newlines just in case
+    supabase_url = supabase_url.strip()
+    service_key = service_key.strip()
+
     melta = MeltaClient(supabase_url, service_key)
 
     # Find md files
