@@ -8,31 +8,29 @@ from melta_client import MeltaClient
 OPENAI_MODEL = "gpt-5.2"
 TARGET_PROJECT_ID = "fbf63df2-4403-49f6-acd2-fee69ffedbc7"  # Source Project ID
 
-def get_openai_remix(content: str) -> str:
-    """Uses OpenAI to remix the content."""
+def load_system_prompt() -> str:
+    """Loads the system prompt from prompts/system_prompt.txt."""
+    try:
+        with open("prompts/system_prompt.txt", "r", encoding="utf-8") as f:
+            return f.read().strip()
+    except Exception as e:
+        print(f"Warning: Could not load system prompt file: {e}")
+        return "You are a helpful AI assistant."
+
+def get_openai_response(content: str) -> str:
+    """Uses OpenAI to generate a direct response to the content (treating it as a prompt)."""
     client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
     
-    prompt = f"""
-    You are an AI Bot for Melta Board.
-    Your task is to read the following past post and write a "Remix" or "Flashback" post.
+    system_prompt = load_system_prompt()
+    prompt = content
     
-    Guidelines:
-    - Language: Korean (한국어)
-    - Tone: Casual, Witty, or Insightful.
-    - Context: "과거의 이런 글이 있었네요!", "다시 봐도 흥미로운 주제입니다." 등 재조명하는 느낌.
-    - Format: Pure Markdown.
-
-    Past Post Content:
-    {content}
-    """
-
     response = client.chat.completions.create(
         model=OPENAI_MODEL,
         messages=[
-            {"role": "system", "content": "You are a creative social media editor."},
+            {"role": "system", "content": system_prompt},
             {"role": "user", "content": prompt}
         ],
-        temperature=0.8
+        temperature=0.7
     )
     return response.choices[0].message.content.strip()
 
@@ -71,23 +69,21 @@ def process_random_post():
             print("Content too short to remix.")
             return
 
-        remixed_text = get_openai_remix(random_content)
-        print("--- Remixed Content ---")
-        print(remixed_text)
-        print("-----------------------")
+        response_text = get_openai_response(random_content)
+        print("--- AI Response ---")
+        print(response_text)
+        print("-------------------")
 
-        # 3. Post to Supabase (Same Project or General?)
-        # User didn't specify destination, so let's put it back in the SAME project for now, or just global.
-        # Assuming we post back to the same project to keep it active.
+        # 3. Post to Supabase (Same Project)
         
         new_post = melta.create_post(
-            content=remixed_text,
-            project_id=TARGET_PROJECT_ID, # Posting back to the same board
-            ai_summary="AI Remix of past content",
+            content=response_text,
+            project_id=TARGET_PROJECT_ID, 
+            ai_summary="AI Automatic Response",
             post_type="memo",
             as_ai=True
         )
-        print(f"Successfully posted remix. ID: {new_post['id']}")
+        print(f"Successfully posted response. ID: {new_post['id']}")
         
     except Exception as e:
         print(f"Error processing remix: {e}")
