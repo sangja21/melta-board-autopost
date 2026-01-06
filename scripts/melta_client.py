@@ -3,9 +3,11 @@ from typing import Optional
 import os
 
 class MeltaClient:
-    def __init__(self, supabase_url: str, service_key: str):
+    def __init__(self, supabase_url: str, service_key: str, bot_user_id: Optional[str] = None):
         self.base_url = supabase_url.strip()
         service_key = service_key.strip()
+        self.bot_user_id = bot_user_id.strip() if bot_user_id else None
+        
         self.headers = {
             "apikey": service_key,
             "Authorization": f"Bearer {service_key}",
@@ -23,10 +25,15 @@ class MeltaClient:
         as_ai: bool = True
     ) -> dict:
         """새 포스트 생성"""
+        
+        # Hardcoded Bot User UUID (Must be a valid UUID existing in auth.users)
+        # TODO: Replace this with your actual Bot User UUID from Supabase
+        bot_uuid = "02b28c0b-0442-493f-b639-668b5774a88f" 
+        
         payload = {
             "content": content,
             "type": post_type,
-            "user_id": "ai_assistant" if as_ai else None,
+            "user_id": bot_uuid if as_ai else None,
         }
         if project_id:
             payload["project_id"] = project_id
