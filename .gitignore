@@ -1,0 +1,25 @@
+
+# Environment Variables
+.env
+.env.local
+.env.*.local
+
+# API Keys & Secrets
+secrets.yaml
+secrets.json
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.venv/
+env/
+.env/
+
+# OS specific
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
