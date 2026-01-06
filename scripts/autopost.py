@@ -1,133 +1,97 @@
 import os
-import glob
-import frontmatter
+import sys
 from datetime import datetime
 from openai import OpenAI
 from melta_client import MeltaClient
-import sys
 
 # Configuration
-SOURCES_DIR = "sources"
-OPENAI_MODEL = "gpt-5.2"  # Custom model version
+OPENAI_MODEL = "gpt-5.2"
+TARGET_PROJECT_ID = "fbf63df2-4403-49f6-acd2-fee69ffedbc7"  # Source Project ID
 
-def get_openai_summary(content: str) -> str:
-    """Uses OpenAI to generate a summary/post from the content."""
+def get_openai_remix(content: str) -> str:
+    """Uses OpenAI to remix the content."""
     client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
     
     prompt = f"""
-    You are an expert tech editor for 'Melta Board'.
-    Read the following raw notes/article and create a engaging Social Media style post (like LinkedIn or Twitter/X thread style but in Markdown).
+    You are an AI Bot for Melta Board.
+    Your task is to read the following past post and write a "Remix" or "Flashback" post.
     
     Guidelines:
-    - Tone: Professional, Insightful, yet accessible.
-    - Structure: Hook headline, Key takeaways (bullet points), and a concluding thought.
-    - Language: Korean (한국어).
-    - Length: Under 500 characters if possible, but don't sacrifice clarity.
-    - Output format: Pure Markdown.
+    - Language: Korean (한국어)
+    - Tone: Casual, Witty, or Insightful.
+    - Context: "과거의 이런 글이 있었네요!", "다시 봐도 흥미로운 주제입니다." 등 재조명하는 느낌.
+    - Format: Pure Markdown.
 
-    Raw Content:
+    Past Post Content:
     {content}
     """
 
     response = client.chat.completions.create(
         model=OPENAI_MODEL,
         messages=[
-            {"role": "system", "content": "You are a helpful AI assistant explaining tech trends."},
+            {"role": "system", "content": "You are a creative social media editor."},
             {"role": "user", "content": prompt}
         ],
-        temperature=0.7
+        temperature=0.8
     )
     return response.choices[0].message.content.strip()
 
-def process_files():
+def process_random_post():
     # Setup Melta Client
     supabase_url = os.environ.get("SUPABASE_URL")
     service_key = os.environ.get("SUPABASE_SERVICE_ROLE_KEY")
-    
-    if not supabase_url or not service_key:
-        print("Error: Supabase environment variables missing in GitHub Secrets.")
-        print(f"DEBUG: SUPABASE_URL present? {bool(supabase_url)}")
-        print(f"DEBUG: SERVICE_KEY present? {bool(service_key)}")
-        sys.exit(1)  # Fail the action explicitly
+    bot_user_id = os.environ.get("BOT_USER_ID")
 
-    # Strip whitespace/newlines just in case
+    if not supabase_url or not service_key:
+        print("Error: Supabase environment variables missing.")
+        sys.exit(1)
+        
+    # Strip whitespace/newlines
     supabase_url = supabase_url.strip()
     service_key = service_key.strip()
 
-    melta = MeltaClient(supabase_url, service_key)
+    melta = MeltaClient(supabase_url, service_key, bot_user_id)
 
-    # Find md files
-    files = glob.glob(os.path.join(SOURCES_DIR, "*.md"))
-    print(f"DEBUG: Found {len(files)} markdown files in {SOURCES_DIR}")
-    print(f"DEBUG: File list: {files}")
+    print(f"Fetching random post from project {TARGET_PROJECT_ID}...")
     
-    target_file = None
-    post_content = None
+    # 1. Get Random Post Content
+    random_content = melta.get_random_post_content(TARGET_PROJECT_ID)
     
-    # 1. Select a candidate file
-    for filepath in files:
-        with open(filepath, "r", encoding="utf-8") as f:
-            post = frontmatter.load(f)
-        
-        # Skip if already processed
-        if post.get("processed"):
-            continue
-            
-        # Found a candidate
-        target_file = filepath
-        post_content = post
-        break
-    
-    if not target_file:
-        print("No new files to process.")
+    if not random_content:
+        print("No content found in the target project.")
         return
 
-    print(f"Processing file: {target_file}")
+    print("--- Original Content (Snippet) ---")
+    print(random_content[:100] + "...")
+    print("--------------------------------")
 
-    # 2. Generate Content via AI
+    # 2. Generate Remix via AI
     try:
-        raw_body = post_content.content
-        if len(raw_body.strip()) < 10:
-            print(f"Skipping {target_file}: Content too short.")
+        if len(random_content.strip()) < 5:
+            print("Content too short to remix.")
             return
 
-        generated_text = get_openai_summary(raw_body)
-        print("--- Generated Content ---")
-        print(generated_text)
-        print("-------------------------")
+        remixed_text = get_openai_remix(random_content)
+        print("--- Remixed Content ---")
+        print(remixed_text)
+        print("-----------------------")
 
-        # 3. Post to Supabase
-        # Check if project_slug is in frontmatter, else default or None
-        project_id = None
-        if post_content.get("project_slug"):
-            proj = melta.get_project_by_slug(post_content.get("project_slug"))
-            if proj:
-                project_id = proj["id"]
-
+        # 3. Post to Supabase (Same Project or General?)
+        # User didn't specify destination, so let's put it back in the SAME project for now, or just global.
+        # Assuming we post back to the same project to keep it active.
+        
         new_post = melta.create_post(
-            content=generated_text,
-            project_id=project_id,
-            source_url=post_content.get("source_url"),
-            ai_summary="AI Generated from local source",
+            content=remixed_text,
+            project_id=TARGET_PROJECT_ID, # Posting back to the same board
+            ai_summary="AI Remix of past content",
             post_type="memo",
             as_ai=True
         )
-        print(f"Successfully posted to Melta Board. ID: {new_post['id']}")
-
-        # 4. Update File Frontmatter
-        post_content["processed"] = True
-        post_content["posted_at"] = datetime.now().isoformat()
-        post_content["melta_post_id"] = new_post["id"]
-        
-        # Save back to file
-        with open(target_file, "w", encoding="utf-8") as f:
-            f.write(frontmatter.dumps(post_content))
-            
-        print(f"Updated {target_file} with processed status.")
+        print(f"Successfully posted remix. ID: {new_post['id']}")
         
     except Exception as e:
-        print(f"Error processing file {target_file}: {e}")
+        print(f"Error processing remix: {e}")
         sys.exit(1)
 
 if __name__ == "__main__":
-    process_files()
+    process_random_post()

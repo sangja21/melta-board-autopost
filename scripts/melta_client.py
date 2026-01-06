@@ -67,3 +67,36 @@ class MeltaClient:
         except Exception as e:
             print(f"Error fetching project: {e}")
             return None
+
+    def get_random_post_content(self, project_id: str) -> Optional[str]:
+        """특정 프로젝트의 포스트 중 하나를 무작위로 가져옴"""
+        import random
+        try:
+            # 1. Get all IDs first to avoid heavy data transfer
+            response = requests.get(
+                f"{self.base_url}/rest/v1/mb_posts?project_id=eq.{project_id}&select=id",
+                headers=self.headers
+            )
+            response.raise_for_status()
+            posts = response.json()
+            
+            if not posts:
+                return None
+                
+            # 2. Pick random ID
+            random_post = random.choice(posts)
+            post_id = random_post['id']
+            
+            # 3. Fetch content
+            detail_response = requests.get(
+                f"{self.base_url}/rest/v1/mb_posts?id=eq.{post_id}&select=content",
+                headers=self.headers
+            )
+            detail_response.raise_for_status()
+            data = detail_response.json()
+            
+            return data[0]['content'] if data else None
+            
+        except Exception as e:
+            print(f"Error fetching random post: {e}")
+            return None
