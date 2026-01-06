@@ -45,13 +45,17 @@ def process_files():
     service_key = os.environ.get("SUPABASE_SERVICE_ROLE_KEY")
     
     if not supabase_url or not service_key:
-        print("Error: Supabase environment variables missing.")
-        return
+        print("Error: Supabase environment variables missing in GitHub Secrets.")
+        print(f"DEBUG: SUPABASE_URL present? {bool(supabase_url)}")
+        print(f"DEBUG: SERVICE_KEY present? {bool(service_key)}")
+        sys.exit(1)  # Fail the action explicitly
 
     melta = MeltaClient(supabase_url, service_key)
 
     # Find md files
     files = glob.glob(os.path.join(SOURCES_DIR, "*.md"))
+    print(f"DEBUG: Found {len(files)} markdown files in {SOURCES_DIR}")
+    print(f"DEBUG: File list: {files}")
     
     target_file = None
     post_content = None
