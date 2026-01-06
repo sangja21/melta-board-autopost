@@ -78,7 +78,7 @@ def process_random_post():
         
         new_post = melta.create_post(
             content=response_text,
-            project_id=TARGET_PROJECT_ID, 
+            project_id=None,  # AI posts should not belong to any project
             ai_summary="AI Automatic Response",
             post_type="memo",
             as_ai=True
