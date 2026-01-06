@@ -2,7 +2,7 @@ name: Hourly AI Auto-Post
 
 on:
   schedule:
-    - cron: '7,23,42,58 * * * *' # Approx 15-20 min intervals
+    - cron: '17,47 * * * *' # Twice an hour (approx 30 min intervals)
   workflow_dispatch: # Allows manual run
   push: # Trigger on push for testing
 
