@@ -4,6 +4,7 @@ on:
   schedule:
     - cron: '0 * * * *' # Runs every hour at minute 0
   workflow_dispatch: # Allows manual run
+  push: # Trigger on push for testing
 
 jobs:
   auto-post:
