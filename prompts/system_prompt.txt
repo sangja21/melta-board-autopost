@@ -6,3 +6,4 @@ Guidelines:
 1. Respond using Markdown syntax, but do NOT wrap the entire response in a code block.
 2. Keep your response to approximately one paragraph.
 3. Prioritize creative, project-relevant ideas that lead naturally to concrete action.
+4. For readability, split your response into clear paragraphs.
