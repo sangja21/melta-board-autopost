@@ -1,80 +1,97 @@
 # Melta Board Auto-Post Bot 🤖
-> **Personal Feed Autopilot**: AI that keeps your thoughts alive.
+> **Your AI Writing Partner**: Never run out of blog ideas again.
 
-이 프로젝트는 **개인 전용 브레인스토밍 파트너(AI Brainstorming Partner)**입니다.  
-사용자가 직접 글을 쓰지 않아도, AI가 기존의 생각 파편들을 연결하고 확장하여 **새로운 아이디어와 영감(Inspiration)**을 스스로 게시합니다. 단순한 회상(Remix)을 넘어, 끊임없이 사고를 확장하는 것이 목표입니다.
+**글감이 떠오르지 않을 때, AI가 대신 써줍니다.**
+
+이 프로젝트는 블로그나 개인 피드에 **글 소재와 아이디어를 자동으로 제안**해주는 AI 봇입니다.  
+과거의 메모나 단편적인 생각들을 씨앗 삼아, AI가 이를 발전시켜 새로운 글감을 끊임없이 생성합니다.
 
 ---
 
-## 🎯 Project Goal
+## ✨ Features
 
-개인 지식보관소나 메모장은 단순한 '창고'가 되기 쉽습니다.  
-**Melta Board Auto-Post**는 이 공간을 **'생각의 발전소'**로 바꾸기 위해 다음과 같은 접근 방식을 취합니다:
+| Feature | Description |
+| :--- | :--- |
+| **🌱 Idea Seeding** | 기존 포스트를 무작위로 선택하여 새로운 관점의 글감으로 확장합니다. |
+| **✍️ Auto Drafting** | AI가 글의 초안을 직접 작성하여 블로그에 게시합니다. |
+| **🔄 Fully Automated** | GitHub Actions를 통해 **30분마다** 자동 실행됩니다. 하루 최대 48개의 글감 생성! |
+| **🧠 Customizable Persona** | `prompts/system_prompt.txt`를 수정하여 AI의 글쓰기 스타일을 조절할 수 있습니다. |
 
-1.  **Autonomous Ideation**: AI가 스스로 주제를 선정하고 브레인스토밍을 수행하여, 단순한 로그가 아닌 **'생각할 거리'**를 던집니다.
-2.  **Continuous Brainstorming**: 과거의 메모는 씨앗(Seed)일 뿐입니다. AI는 이를 바탕으로 **새로운 관점을 제안하고, 꼬리에 꼬리를 무는 질문**을 통해 아이디어를 발전시킵니다.
-3.  **Creative Partner**: 봇은 단순 관리자가 아닙니다. 당신의 잠든 아이디어를 깨워 새로운 기획으로 연결해주는 **창의적 파트너**입니다.
+---
 
-## 🛠 Architecture
+## 🎯 Who Is This For?
 
-이 시스템은 **"Random Pick & Ideation"** 전략을 사용합니다.
+- 블로그를 운영하지만 **글감 고갈**에 시달리는 분
+- 매일 글을 쓰고 싶지만 **첫 문장이 막히는** 분
+- 개인 지식 저장소를 **살아있는 공간**으로 만들고 싶은 분
+- AI와 함께 **브레인스토밍**을 하고 싶은 크리에이터
+
+---
+
+## 🛠 How It Works
 
 ```mermaid
 graph LR
-    DB[(Supabase\nProject Data)] -- Random Fetch --> Script[Autopost Script]
-    Script -- Seed Content --> AI[OpenAI API\n(Brainstorming Partner)]
-    AI -- New Ideas --> Script
-    Script -- Create Post --> DB
+    DB[(Your Posts)] -- Random Pick --> Bot[Autopost Bot]
+    Bot -- Seed Idea --> AI[OpenAI API]
+    AI -- New Blog Draft --> Bot
+    Bot -- Publish --> DB
 ```
 
-1.  **Fetch (Seed Discovery)**: 타겟 프로젝트의 과거 포스트(아이디어 씨앗) 하나를 무작위로 선정합니다.
-2.  **Brainstorming**: AI에게 해당 글을 제공하고, **"Tech Insight가 담긴 파트너"**로서 꼬리에 꼬리를 무는 질문, 반론, 혹은 확장된 아이디어를 생성하게 합니다.
-3.  **Post**: 생성된 브레인스토밍 결과를 `AI Assistant` 명의로 게시하여 사용자에게 새로운 영감을 줍니다.
+1.  **Seed Selection**: 과거 포스트 중 하나를 무작위로 골라 '씨앗(Seed)'으로 사용합니다.
+2.  **AI Expansion**: AI가 씨앗 아이디어를 분석하고, 새로운 관점/질문/확장된 내용을 담은 글을 작성합니다.
+3.  **Auto Publish**: 생성된 글이 `AI Assistant` 명의로 자동 게시됩니다.
 
-## 📂 Directory Structure
+---
 
-```bash
+## 📂 Project Structure
+
+```
 melta-board-autopost/
-├── .github/workflows/ # GitHub Actions 스케줄러 (1시간 주기)
-├── docs/              # 개발 문서 및 시스템 아키텍처
-├── prompts/           # AI 페르소나 및 시스템 프롬프트 정의
-├── scripts/           # 핵심 로직 (Python)
-│   ├── autopost.py    # 메인 실행 파일 (Random Pick -> AI -> Post)
-│   └── melta_client.py# Supabase 및 외부 API 연동 클라이언트
-└── ...
+├── .github/workflows/   # GitHub Actions (30분 주기 스케줄러)
+├── docs/                # 시스템 설계 문서
+├── prompts/             # AI 페르소나 설정 (system_prompt.txt)
+├── scripts/             # 핵심 Python 스크립트
+│   ├── autopost.py      # 메인 로직
+│   └── melta_client.py  # Supabase API 클라이언트
+└── requirements.txt     # Python 의존성
 ```
 
-## 🚀 Setup & Usage
+---
+
+## 🚀 Quick Start
 
 ### 1. Prerequisites
 - Python 3.9+
-- Supabase Project (Melta Board 호환)
+- Supabase Project (with `mb_posts` table)
 - OpenAI API Key
 
-### 2. Environment Variables (.env)
-로컬 실행 시 `.env` 파일이 필요합니다.
+### 2. Environment Setup
+GitHub Repository **Settings > Secrets and variables > Actions**에 다음 값들을 등록하세요:
 
-```ini
-OPENAI_API_KEY=sk-...
-SUPABASE_URL=https://your-project.supabase.co
-SUPABASE_SERVICE_ROLE_KEY=ey...
-BOT_USER_ID=... (Optional, but usually hardcoded in script)
-```
+| Secret Name | Description |
+| :--- | :--- |
+| `OPENAI_API_KEY` | OpenAI API 키 |
+| `SUPABASE_URL` | Supabase 프로젝트 URL |
+| `SUPABASE_SERVICE_ROLE_KEY` | Supabase Service Role 키 |
+| `BOT_USER_ID` | (Optional) 봇 사용자 UUID |
 
-### 3. Running Locally
-```bash
-# 의존성 설치
-pip install -r requirements.txt
+### 3. Customize AI Persona
+`prompts/system_prompt.txt` 파일을 수정하여 AI의 성격과 글쓰기 스타일을 지정할 수 있습니다.
 
-# 봇 수동 실행 (1회 Remix 수행)
-python scripts/autopost.py
-```
+### 4. Deploy
+코드를 Push하면 GitHub Actions가 자동으로 활성화됩니다.  
+**30분마다** AI가 새로운 글감을 생성하여 블로그에 게시합니다.
 
-### 4. Deployment (GitHub Actions)
-리포지토리에 코드를 Push하면 `.github/workflows/hourly_post.yml`에 의해 **매시간 정각**에 자동으로 실행됩니다.
-GitHub Repository Settings > Secrets에 위 환경변수들을 등록해야 합니다.
+---
+
+## 📊 Stats (Example)
+
+- ⏰ **Frequency**: 30분 간격 (하루 최대 48회)
+- 🤖 **Model**: GPT-5.2
+- 📝 **Output**: Tech Insight 스타일의 블로그 포스트
 
 ---
 
 ## 📝 License
-This project is for personal use with Melta Board.
+This project is open source for personal and educational use.
