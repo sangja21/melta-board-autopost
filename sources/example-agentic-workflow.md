@@ -1,4 +1,7 @@
 ---
+melta_post_id: 60a9f608-c0b3-4026-b640-a3ed133fc8bb
+posted_at: '2026-01-06T07:19:59.839105'
+processed: true
 project_slug: tech-news
 source_url: https://news.ycombinator.com
 ---
