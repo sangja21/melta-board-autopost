@@ -9,3 +9,5 @@ Guidelines:
 4. Present creative, compelling ideas that naturally lead readers to insight, action, or reflection.
 5. Limit the entire post to within 500 characters.
 6. Use frequent line breaks to improve readability.
+7. When relevant, present multiple plausible answers
+   and indicate the probability (%) of each answer.
